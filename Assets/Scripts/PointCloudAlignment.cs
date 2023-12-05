@@ -11,6 +11,9 @@ public class PointCloudAlignment : MonoBehaviour
     public Camera _camera;
     TextMeshProUGUI text;
 
+    public GameObject linePrefab;
+
+
     public GameObject ModelHandler;
 
     public string file1Path;
@@ -25,7 +28,7 @@ public class PointCloudAlignment : MonoBehaviour
     //Matrix4x4 _RotationMatrix;
     //Vector3 _TranlationVector;
 
-    public int _MaxIterations = 10;
+    public int _MaxIterations = 1000;
     public float _DistanceThreshold = 0.1f;
 
     bool showOriginalPoints = false;
@@ -225,19 +228,41 @@ public class PointCloudAlignment : MonoBehaviour
         parentObject.transform.SetParent(ModelHandler.transform);
         for (int i = 0; i < _PointSetP.Count; i++)
         {
-            GameObject lineObject = new("Line" + i);
-            lineObject.tag = "Line";
-            lineObject.transform.parent = parentObject.transform;
-
-            LineRenderer lineRenderer = lineObject.AddComponent<LineRenderer>();
-            lineRenderer.startWidth = 0.05f;
-            lineRenderer.endWidth = 0.05f;
-            lineRenderer.material = new Material(Shader.Find("Standard"));
-            lineRenderer.material.color = Color.white;
-            
-            lineRenderer.SetPosition(0, _PointSetP[i]);
-            lineRenderer.SetPosition(1, _TransformedPointSetP[i]);
+            //Creating cylinders instead of lines due to movement
+            DrawCylinder(_PointSetP[i], _TransformedPointSetP[i], parentObject);
         }
+    }
+
+    void DrawCylinder(Vector3 point1, Vector3 point2, GameObject parentObject)
+    {
+        // Calculate the midpoint between the two points
+        Vector3 midpoint = (point1 + point2) / 2;
+
+        // Calculate the distance between the two points
+        float distance = Vector3.Distance(point1, point2);
+
+        // Create a cylinder mesh
+        GameObject cylinder = CreateCylinder(distance, parentObject);
+
+        // Orient the cylinder to point from point1 to point2
+        cylinder.transform.rotation = Quaternion.LookRotation(point2 - point1) * Quaternion.Euler(90,0,0);
+
+        // Position the cylinder at the midpoint
+        cylinder.transform.position = midpoint;
+    }
+
+    GameObject CreateCylinder(float height, GameObject parentObject)
+    {
+        // Instantiate your cylinder prefab
+        GameObject cylinder = Instantiate(linePrefab);
+
+        // Adjust the scale to set the height of the cylinder
+        cylinder.transform.localScale = new Vector3(0.05f, height / 2, 0.05f);
+
+        cylinder.transform.SetParent(parentObject.transform);
+        cylinder.tag = "Transformed";
+
+        return cylinder;
     }
 
     void VisualizePointsAsSpheres(List<Vector3> pointSet, string pointSetName, string pointName, string pointTag, Color color)

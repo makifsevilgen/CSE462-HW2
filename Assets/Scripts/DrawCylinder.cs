@@ -7,8 +7,8 @@ public class CylinderDrawer : MonoBehaviour
     void Start()
     {
         // Example usage:
-        Vector3 point1 = new Vector3(0, 0, 0);
-        Vector3 point2 = new Vector3(5, 5, 5);
+        Vector3 point1 = new Vector3(2, 3.6f, 4.5f);
+        Vector3 point2 = new Vector3(2.36f, 6.1f, 2.94f);
         DrawCylinder(point1, point2);
     }
 
@@ -24,7 +24,8 @@ public class CylinderDrawer : MonoBehaviour
         GameObject cylinder = CreateCylinder(distance);
 
         // Orient the cylinder to point from point1 to point2
-        cylinder.transform.rotation = Quaternion.LookRotation(point2 - point1);
+        cylinder.transform.rotation = Quaternion.LookRotation(point2 - point1) * Quaternion.Euler(90,0,0);
+
 
         // Position the cylinder at the midpoint
         cylinder.transform.position = midpoint;
@@ -40,7 +41,7 @@ public class CylinderDrawer : MonoBehaviour
         GameObject cylinder = Instantiate(cylinderPrefab);
 
         // Adjust the scale to set the height of the cylinder
-        cylinder.transform.localScale = new Vector3(1, height / 2, 1);
+        cylinder.transform.localScale = new Vector3(0.05f, height / 2, 0.05f);
 
         return cylinder;
     }
